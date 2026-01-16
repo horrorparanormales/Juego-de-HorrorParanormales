@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego Horror Paranormales</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:url('https://backiee.com/static/wallpapers/1000x563/375968.jpg') center/cover no-repeat;
+  font-family:Arial,sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow-x:hidden;
+  overflow-y:hidden;
+  position: relative;
+}
+/* AVATAR */
+.avatar{width:min(280px,70vw);margin:15px 0;animation:breathe 5s ease-in-out infinite;z-index:10}
+.avatar img{width:100%}
+@keyframes breathe{50%{transform:translateY(-6px)}}
+/* BOTONES */
+button,select{
+  padding:12px 25px;
+  font-size:20px;
+  font-family:'Creepster',cursive;
+  background:darkred;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer
+}
+#reiniciarBtn{position:fixed;top:15px;left:15px;z-index:30}
+#instruccionesBtn{position:fixed;top:15px;right:15px;z-index:30}
+/* INICIO */
+.container{
+  background:rgba(0,0,0,.65);
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  width:min(90%,420px);
+  z-index:20
+}
+.container h1{font-family:'Creepster',cursive;color:white}
+.container select{
+  margin:15px 0;
+  width:80%;
+  max-width:280px;
+}
+/* COFRES */
+#cuadros-container{
+  width:95%;
+  max-width:1200px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+  gap:15px;
+  padding-bottom:40px;
+  position: relative;
+  z-index: 5;
+  justify-content: center;
+}
+.cuadro{
+  aspect-ratio:1/1;
+  background:url("https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/cofre.png") center/cover no-repeat;
+  border-radius:8px;
+  cursor:pointer;
+  position:relative;
+  animation:fadeIn .6s forwards,sway 4s infinite
+}
+.cuadro.final-phase {
+  width: 260px !important;
+  height: 260px !important;
+}
+.cuadro::before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:12px;
+  background:radial-gradient(circle,rgba(255,0,0,.45),transparent 70%);
+  animation:redPulse 3s ease-in-out infinite;
+  z-index:-1
+}
+.cuadro:hover{
+  box-shadow:0 0 20px #00ff00,inset 0 0 20px #00ff00
+}
+@keyframes redPulse{50%{opacity:.3}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes sway{50%{transform:translateX(4px)}}
+/* MURCIÉLAGOS */
+.murcielago {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url("https://github.com/horrorparanormales/Avatar-el-Horror/raw/main/murcielago%20limpio.png") center/contain no-repeat;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+}
+/* COFRE GANADOR */
+.premio{
+  background-image:url("https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/cofre%20ganador.png");
+  position:fixed;
+  top:50%;
+  left:50%;
+  width:min(260px,80vw);
+  height:min(260px,80vw);
+  transform:translate(-50%,-50%);
+  z-index:50;
+  animation:winnerFloat 4s ease-in-out infinite
+}
+@keyframes winnerFloat{50%{transform:translate(-50%,-55%)}}
+/* LLAVE - BRILLO SOLO EN CONTORNO Y POR DETRÁS */
+.llave-ganadora{
+  position:fixed;
+  top:calc(50% - 160px);
+  left:50%;
+  width:140px;
+  height:140px;
+  transform:translateX(-50%);
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  z-index:120;
+  pointer-events:none;
+  animation:llaveFlota 4s ease-in-out infinite
+}
+.llave-ganadora::before{
+  content:"";
+  position:absolute;
+  inset:-18px;
+  border-radius:50%;
+  background:conic-gradient(
+    transparent 0deg 90deg,
+    var(--color-brillo) 100deg 260deg,
+    transparent 270deg 360deg
+  );
+  opacity:0.8;
+  filter:blur(14px);
+  animation:giroBrillo 5s linear infinite;
+  z-index: -1;
+  pointer-events:none;
+}
+.llave-ganadora.green::before  { --color-brillo: #00ff41; }
+.llave-ganadora.blue::before   { --color-brillo: #0066ff; }
+.llave-ganadora.purple::before { --color-brillo: #aa00ff; }
+@keyframes llaveFlota{50%{transform:translateX(-50%) translateY(-20px)}}
+@keyframes giroBrillo{to{transform:rotate(360deg)}}
+/* TEXTO FELICIDADES */
+#felicidadesText {
+  position: fixed;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Creepster', cursive;
+  font-size: min(9vw, 90px);
+  color: #00ff00;
+  -webkit-text-stroke: 2px black;
+  text-shadow:
+    0 0 10px #00ff00,
+    0 0 25px #00ff00,
+    0 0 45px rgba(0,255,0,0.7);
+  letter-spacing: 4px;
+  opacity: 0;
+  z-index: 55;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: glowPulse 2.5s ease-in-out infinite;
+  text-align: center;
+}
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 10px #00ff00, 0 0 25px #00ff00, 0 0 45px rgba(0,255,0,0.7); }
+  50% { text-shadow: 0 0 20px #00ff00, 0 0 50px #00ff00, 0 0 90px rgba(0,255,0,1); }
+}
+/* OVERLAY FINAL (ganar/perder) */
+#endGameOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  pointer-events: all;
+}
+#endGameContent { text-align: center; max-width: 90%; }
+#endHand {
+  width: min(280px, 60vw);
+  height: auto;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 0 15px #00ff88);
+  animation: breatheHand 3s ease-in-out infinite;
+}
+@keyframes breatheHand {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+#endButtons {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+#endButtons button {
+  padding: 15px 40px;
+  font-size: 24px;
+  min-width: 220px;
+}
+/* VIDEO FINAL */
+#finalVideoOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 160;
+}
+#finalVideo {
+  width: 90vw;
+  max-width: 1000px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 60px #aa00ff;
+}
+/* ERROR */
+.error-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:80;
+  perspective:800px
+}
+.error-box{text-align:center;animation:errorZoomFade 2s ease-out forwards}
+.x-mark{font-size:90px;color:#00ff00;-webkit-text-stroke:3px black}
+.error-text{font-family:'Creepster',cursive;font-size:40px;color:#00ff00;-webkit-text-stroke:2px black}
+@keyframes errorZoomFade{
+  0%{transform:scale(.3) translateZ(-300px);opacity:0;filter:blur(10px)}
+  40%{opacity:1;filter:blur(0)}
+  100%{transform:scale(1.5) translateZ(200px);opacity:0;filter:blur(12px)}
+}
+/* LOADING */
+.loading-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:200
+}
+.loading-overlay video{
+  width:min(90%,600px);
+  border-radius:12px;
+  box-shadow:0 0 40px crimson
+}
+/* TERMÓMETRO */
+#triesContainer{
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  display: none;
+  animation: respirar 4s ease-in-out infinite;
+  pointer-events: none;
+}
+#triesContainer::before{
+  content: "";
+  position: absolute;
+  inset: -80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120,220,255,.65), transparent 70%);
+  filter: blur(40px);
+  animation: bluePulse 3s ease-in-out infinite;
+  z-index: -1;
+}
+#triesContainer img{
+  width: 540px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(120,220,255,0.6));
+}
+#triesText{
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Creepster', cursive;
+  font-size: 90px;
+  color: #7fdcff;
+  -webkit-text-stroke: 4px black;
+  text-shadow: 0 0 20px #7fdcff, 0 0 35px #00aaff;
+  pointer-events: none;
+}
+@keyframes respirar{50%{transform:translateY(-50%) scale(1.05)}}
+@keyframes bluePulse{50%{opacity:.3}}
+/* MODAL INSTRUCCIONES */
+#instruccionesModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+#instruccionesModal.visible {
+  display: flex;
+  opacity: 1;
+}
+#instruccionesModal .modal-content {
+  position: relative;
+  max-width: 92%;
+  max-height: 90vh;
+}
+#instruccionesModal img {
+  width: 100%;
+  height: auto;
+  border: 4px solid #00ff00;
+  border-radius: 12px;
+  box-shadow: 0 0 30px #00ff00, 0 0 60px #00aa00;
+}
+#instruccionesModal .cerrar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 50px;
+  color: #00ff00;
+  cursor: pointer;
+  font-family: 'Creepster', cursive;
+  text-shadow: 0 0 10px #000, 0 0 20px #000;
+  z-index: 102;
+}
+/* TEXTO INSTRUCCIONES */
+#instruccionesTexto {
+  position: absolute;
+  bottom: 12%;
+  left: 8%;
+  font-family: 'Creepster', cursive;
+  font-size: min(3.8vw, 32px);
+  color: white;
+  -webkit-text-stroke: 2px black;
+  text-shadow:
+    -3px -3px 0 #000,
+     3px -3px 0 #000,
+    -3px 3px 0 #000,
+     3px 3px 0 #000;
+  letter-spacing: 1px;
+  text-align: left;
+  line-height: 1.3;
+  pointer-events: none;
+  z-index: 101;
+  max-width: 80%;
+}
+/* EFECTO IMAGEN ESPECIAL (+2 / -2) */
+@keyframes effectAnim {
+  0% {transform: translate(-50%, -50%) scale(0); opacity: 0;}
+  20% {transform: translate(-50%, -50%) scale(1.2); opacity: 1;}
+  80% {transform: translate(-50%, -50%) scale(1); opacity: 1;}
+  100% {transform: translate(-50%, -50%) scale(0); opacity: 0;}
+}
+/* EFECTO 10 OPUS */
+@keyframes tenOpusAnim {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0; filter: brightness(1) drop-shadow(0 0 0 gold); }
+  30%  { transform: translate(-50%, -50%) scale(1.15); opacity: 1; filter: brightness(1.8) drop-shadow(0 0 40px gold); }
+  75%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; filter: brightness(1.4) drop-shadow(0 0 60px gold); }
+  100% { transform: translate(-50%, -50%) scale(1.08); opacity: 0; filter: brightness(1) drop-shadow(0 0 0 gold); }
+}
+.ten-opus-effect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 110;
+  max-width: 60vw;
+  pointer-events: none;
+  animation: tenOpusAnim 3s ease-out forwards;
+}
+/* VAULT DE LLAVES */
+.vault-key {
+  position: absolute;
+  bottom: 8%;
+  right: 5%;
+  width: min(180px, 22vw);
+  height: auto;
+  z-index: 6;
+  pointer-events: none;
+  display: none;
+  animation: respirarVault 3.8s ease-in-out infinite;
+}
+.vault-key img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 8px #00ff41);
+  position: relative;
+  z-index: 2;
+}
+.vault-key::before {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 100deg,
+    #00ff41 120deg 240deg,
+    transparent 260deg 360deg
+  );
+  opacity: 0.65;
+  filter: blur(14px);
+  animation: girarVerde 5.5s linear infinite;
+  z-index: -1;
+}
+@keyframes respirarVault {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50%      { transform: scale(1.04) translateY(-6px); }
+}
+@keyframes girarVerde {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<!-- AUDIOS -->
+<audio id="hoverSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/sonido%20de%20cursor.mp3"></audio>
+<audio id="openSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/sondigo%20de%20cofre%20al%20abrirse.mp3"></audio>
+<audio id="bgMusic" loop preload="auto">
+  <source src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/Strange%20Vision%20-%20Myuu.mp3" type="audio/mpeg">
+</audio>
+<audio id="batSound" preload="auto">
+  <source src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/Efecto%20de%20sonido_%20Murci%C3%A9lago%20vuelo%20y%20chillido.mp3" type="audio/mpeg">
+</audio>
+<audio id="winSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/sonido%20ganador.mp3"></audio>
+<audio id="plusSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/sonido%20ganador%20mas%20dos.mp3"></audio>
+<audio id="minusSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/sonido%20perdedor%20menos%20dos.mp3"></audio>
+<audio id="laughSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/mujer%20riendose.mp3"></audio>
+<audio id="tenOpusSound" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/cofre%20de%2010%20opus%20sonido.mp3"></audio>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <video id="loadingVideo" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/loading%20video%20real.mp4" muted></video>
+</div>
+
+<div class="avatar">
+  <img id="avatarImg" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/EL_horror-sin%20fondo.png">
+</div>
+
+<button id="reiniciarBtn" onclick="location.reload()">Reiniciar</button>
+<button id="instruccionesBtn" onclick="abrirInstrucciones()">Instrucciones</button>
+
+<div class="container" id="start">
+  <h1>Juego Horror Paranormales</h1>
+  <select id="jugadoresSelect">
+    <option value="1">1 Jugador</option>
+    <option value="2">2 Jugadores</option>
+    <option value="3">3 Jugadores</option>
+    <option value="4">4 Jugadores</option>
+  </select>
+  <button onclick="startGame()">INICIAR JUEGO</button>
+</div>
+
+<div id="triesContainer">
+  <img id="termoImg" src="https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%200.png">
+  <div id="triesText">10</div>
+</div>
+
+<div id="cuadros-container"></div>
+<div id="felicidadesText">¡FELICIDADES!</div>
+
+<div class="error-overlay" id="errorOverlay">
+  <div class="error-box">
+    <div class="x-mark">✖</div>
+    <div class="error-text">EQUIVOCADO</div>
+  </div>
+</div>
+
+<div id="endGameOverlay">
+  <div id="endGameContent">
+    <img id="endHand" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/REINICIO.png" alt="Mano de reinicio">
+    <div id="endButtons">
+      <button id="playAgainBtn">JUGAR DE NUEVO</button>
+      <button id="mainMenuBtn">MENÚ PRINCIPAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO FINAL (con sonido) -->
+<div id="finalVideoOverlay">
+  <video id="finalVideo" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/video%20final.mp4" autoplay></video>
+</div>
+
+<div id="instruccionesModal">
+  <div class="modal-content">
+    <span class="cerrar" onclick="cerrarInstrucciones()">X</span>
+    <img src="https://github.com/horrorparanormales/Avatar-el-Horror/raw/main/instrucciones.png" alt="Instrucciones del juego">
+    <div id="instruccionesTexto">
+      ¡ENCUENTRA EL COFRE CON LA LLAVE!<br>
+      SOLO 1 GANADOR<br>
+      LOS DEMÁS PIERDEN<br>
+      ¡NO TE EQUIVOQUES!
+    </div>
+  </div>
+</div>
+
+<div class="vault-key">
+  <img id="vaultImg" src="https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/vaul%20de%20llaves.png" alt="Vault de llaves">
+</div>
+
+<script>
+// MURCIÉLAGOS
+function crearMurcielago() {
+  const mur = document.createElement('div');
+  mur.className = 'murcielago';
+  const size = 40 + Math.random() * 50;
+  const startY = 5 + Math.random() * 70;
+  const duration = 12 + Math.random() * 18;
+  const delay = Math.random() * 6;
+  const direction = Math.random() > 0.45 ? 1 : -1;
+  const curve = (Math.random() - 0.5) * 60;
+  const rotation = (Math.random() - 0.5) * 40;
+  mur.style.width = `${size}px`;
+  mur.style.height = `${size}px`;
+  mur.style.top = `${startY}vh`;
+  mur.style.left = direction > 0 ? '-100px' : 'calc(100% + 100px)';
+  mur.style.transform = `scaleX(${direction}) rotate(${rotation}deg)`;
+  mur.style.animation = `volarMurcielago ${duration}s linear ${delay}s forwards`;
+  const animName = `volar-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @keyframes ${animName} {
+      0% { opacity: 0; transform: translateX(0) translateY(0) rotate(${rotation}deg); }
+      10% { opacity: ${0.6 + Math.random()*0.4}; }
+      50% { transform: translateX(${direction * 50 + Math.random()*40}vw) translateY(${curve}vh) rotate(${rotation + (Math.random()*20-10)}deg); }
+      90% { opacity: ${0.7 + Math.random()*0.3}; }
+      100% { opacity: 0; transform: translateX(${direction * (100 + Math.random()*60)}vw) translateY(${curve + (Math.random()*40 - 20)}vh) rotate(${rotation + (Math.random()*30-15)}deg); }
+    }
+  `;
+  document.head.appendChild(styleSheet);
+  mur.style.animationName = animName;
+  document.body.appendChild(mur);
+  mur.addEventListener('animationend', () => {
+    mur.remove();
+    styleSheet.remove();
+    setTimeout(crearMurcielago, Math.random() * 1800 + 600);
+  });
+}
+
+window.addEventListener('load', () => {
+  const iniciales = 3 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < iniciales; i++) {
+    setTimeout(crearMurcielago, i * 800 + Math.random() * 2000);
+  }
+  const bgMusic = document.getElementById("bgMusic");
+  bgMusic.volume = 0.35;
+  bgMusic.play().catch(() => {
+    document.addEventListener('click', () => bgMusic.play().catch(() => {}), { once: true });
+  });
+  const batSound = document.getElementById("batSound");
+  batSound.volume = 0.25;
+  function playBat() {
+    batSound.currentTime = 0;
+    batSound.play().catch(() => {});
+  }
+  setTimeout(() => {
+    playBat();
+    setInterval(playBat, 15000);
+  }, 5000);
+  const laughSound = document.getElementById("laughSound");
+  laughSound.volume = 0.25;
+  function playLaugh() {
+    laughSound.currentTime = 0;
+    laughSound.play().catch(() => {});
+  }
+  setTimeout(() => {
+    playLaugh();
+    setInterval(playLaugh, 40000);
+  }, 5000);
+});
+
+// VARIABLES DEL JUEGO
+const hoverSound = document.getElementById("hoverSound");
+const openSound = document.getElementById("openSound");
+const winSound = document.getElementById("winSound");
+const plusSound = document.getElementById("plusSound");
+const minusSound = document.getElementById("minusSound");
+const tenOpusSound = document.getElementById("tenOpusSound");
+
+const triesContainer = document.getElementById("triesContainer");
+const triesText = document.getElementById("triesText");
+const termoImg = document.getElementById("termoImg");
+const vaultImg = document.getElementById("vaultImg");
+
+const termoImgsPhase1 = [
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%200.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%201.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%202.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%203.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%204.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%205.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%206.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%207.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%208.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%209.png",
+  "https://raw.githubusercontent.com/horrorparanormales/loading-bar/main/termo%2010.png"
+];
+
+const termoImgsPhase2 = [
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%20con%206%20oportunidades.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%201.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%202.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%203.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%204.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%205.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%206%20red%206.png"
+];
+
+const termoImgsPhase3 = [
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%20desde%20cero.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%20solo%20una%20oportunidad.png",
+  "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/termo%200%20ultima%20oportunidad.png"
+];
+
+const avatarImg = document.getElementById("avatarImg");
+const normal = avatarImg.src;
+const ganador = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/ganaste%20background%20limpio.png";
+const cofreAbierto = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/cofre%20abierto.png";
+
+const llavePhase1Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/llave%20de%20cofre.png";
+const llavePhase2Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/llave%20cuervo.png";
+const llavePhase3Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/llave%20murcielago.png";
+
+const vaultPhase1Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/vaul%20de%20llaves.png";
+const vaultPhase2Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/vaul%20de%20llaves%20con%20llave%20dorada.png";
+const vaultPhase3Url = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/vaul%20de%20llaves%20con%20llave%20dorada%20y%20negra.png";
+
+let premioIndex, juego = false, intentos = 10;
+let currentPlayers = 1;
+let llaveElement = null;
+let cofresAbiertos = 0;
+let plusPlaced = false;
+let minusPlaced = false;
+let tenOpusIndex = -1;
+let currentPhase = 1;
+let maxIntentos = 10;
+let initialCofres = 0;
+let currentTermoImgs = termoImgsPhase1;
+
+const felicidadesText = document.getElementById("felicidadesText");
+const endGameOverlay = document.getElementById("endGameOverlay");
+const finalVideoOverlay = document.getElementById("finalVideoOverlay");
+const finalVideo = document.getElementById("finalVideo");
+
+// Al terminar el video final → reinicio completo al menú principal
+finalVideo.addEventListener('ended', () => {
+  finalVideoOverlay.style.display = "none";
+  returnToMainMenu();  // ← Esto hace que vuelva al menú inicial limpio
+});
+
+document.getElementById("playAgainBtn").onclick = restartSameGame;
+document.getElementById("mainMenuBtn").onclick = returnToMainMenu;
+
+function restartSameGame() {
+  limpiarElementosVictoria();
+  endGameOverlay.style.display = "none";
+  finalVideoOverlay.style.display = "none";
+  finalVideo.pause();
+  finalVideo.currentTime = 0;
+  currentPhase = 1;
+  currentTermoImgs = termoImgsPhase1;
+  iniciarJuegoReal();
+}
+
+function returnToMainMenu() {
+  limpiarElementosVictoria();
+  endGameOverlay.style.display = "none";
+  finalVideoOverlay.style.display = "none";
+  finalVideo.pause();
+  finalVideo.currentTime = 0;
+  document.getElementById("start").style.display = "block";
+  triesContainer.style.display = "none";
+  document.getElementById("cuadros-container").innerHTML = "";
+  document.querySelector('.vault-key').style.display = 'none';
+  vaultImg.src = vaultPhase1Url;
+  juego = false;
+  avatarImg.src = normal;
+  cofresAbiertos = 0;
+  plusPlaced = false;
+  minusPlaced = false;
+  tenOpusIndex = -1;
+  currentPhase = 1;
+  // Resetear estilos del contenedor para evitar residuos de fase 3
+  const container = document.getElementById("cuadros-container");
+  container.style.gridTemplateColumns = "";
+  container.style.justifyContent = "";
+  container.style.gap = "";
+}
+
+function limpiarElementosVictoria() {
+  felicidadesText.style.opacity = "0";
+  avatarImg.src = normal;
+  if (llaveElement) {
+    llaveElement.remove();
+    llaveElement = null;
+  }
+  document.querySelectorAll('.premio').forEach(el => el.classList.remove('premio'));
+}
+
+document.addEventListener("mouseover", e => {
+  if (e.target.closest("button, select, .cuadro")) {
+    hoverSound.currentTime = 0;
+    hoverSound.play().catch(() => {});
+  }
+});
+
+function startGame() {
+  currentPlayers = parseInt(document.getElementById("jugadoresSelect").value);
+  initialCofres = currentPlayers === 1 ? 25 : currentPlayers === 2 ? 33 : 45;
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const loadingVideo = document.getElementById("loadingVideo");
+  loadingVideo.currentTime = 0;
+  loadingVideo.play().catch(() => {});
+  loadingOverlay.style.display = "flex";
+  setTimeout(() => {
+    loadingOverlay.style.display = "none";
+    loadingVideo.pause();
+    loadingVideo.currentTime = 0;
+    iniciarJuegoReal();
+  }, 4000);
+}
+
+function iniciarJuegoReal() {
+  currentPhase = 1;
+  maxIntentos = 10;
+  currentTermoImgs = termoImgsPhase1;
+  juego = true;
+  intentos = maxIntentos;
+  cofresAbiertos = 0;
+  plusPlaced = false;
+  minusPlaced = false;
+  tenOpusIndex = -1;
+  triesText.textContent = intentos;
+  termoImg.src = currentTermoImgs[maxIntentos - intentos];
+  triesContainer.style.display = "block";
+  document.getElementById("start").style.display = "none";
+  document.querySelector('.vault-key').style.display = 'block';
+  vaultImg.src = vaultPhase1Url;
+
+  let cantidadCofres = initialCofres;
+  const container = document.getElementById("cuadros-container");
+  container.innerHTML = "";
+  container.style.gridTemplateColumns = "repeat(auto-fill, minmax(100px, 1fr))";
+  container.style.justifyContent = "center";
+  container.style.gap = "15px";
+
+  premioIndex = Math.floor(Math.random() * cantidadCofres);
+
+  for (let i = 0; i < cantidadCofres; i++) {
+    const d = document.createElement("div");
+    d.className = "cuadro";
+    d.dataset.index = i;
+    d.onclick = () => abrirCofre(d, i);
+    container.appendChild(d);
+  }
+
+  const cofres = document.querySelectorAll(".cuadro");
+  tenOpusIndex = Math.floor(Math.random() * cantidadCofres);
+  while (tenOpusIndex === premioIndex) {
+    tenOpusIndex = Math.floor(Math.random() * cantidadCofres);
+  }
+  cofres[tenOpusIndex].dataset.tenOpus = "true";
+
+  colocarCofresEspeciales(-2, 2);
+  minusPlaced = true;
+}
+
+function startPhase2() {
+  currentPhase = 2;
+  maxIntentos = 6;
+  currentTermoImgs = termoImgsPhase2;
+  juego = true;
+  intentos = maxIntentos;
+  cofresAbiertos = 0;
+  plusPlaced = false;
+  minusPlaced = false;
+  tenOpusIndex = -1;
+  triesText.textContent = intentos;
+  termoImg.src = currentTermoImgs[maxIntentos - intentos];
+  vaultImg.src = vaultPhase2Url;
+
+  const container = document.getElementById("cuadros-container");
+  container.innerHTML = "";
+  container.style.gridTemplateColumns = "repeat(auto-fill, minmax(100px, 1fr))";
+  container.style.justifyContent = "center";
+  container.style.gap = "15px";
+
+  let cantidadCofres = initialCofres - 5;
+  premioIndex = Math.floor(Math.random() * cantidadCofres);
+
+  for (let i = 0; i < cantidadCofres; i++) {
+    const d = document.createElement("div");
+    d.className = "cuadro";
+    d.dataset.index = i;
+    d.onclick = () => abrirCofre(d, i);
+    container.appendChild(d);
+  }
+
+  const cofres = document.querySelectorAll(".cuadro");
+  tenOpusIndex = Math.floor(Math.random() * cantidadCofres);
+  while (tenOpusIndex === premioIndex) {
+    tenOpusIndex = Math.floor(Math.random() * cantidadCofres);
+  }
+  cofres[tenOpusIndex].dataset.tenOpus = "true";
+
+  colocarCofresEspeciales(-2, 2);
+  minusPlaced = true;
+}
+
+function startPhase3() {
+  currentPhase = 3;
+  maxIntentos = 1;
+  currentTermoImgs = termoImgsPhase3;
+  juego = true;
+  intentos = maxIntentos;
+  cofresAbiertos = 0;
+  plusPlaced = false;
+  minusPlaced = false;
+  tenOpusIndex = -1;
+  triesText.textContent = intentos;
+  termoImg.src = currentTermoImgs[maxIntentos - intentos];
+  vaultImg.src = vaultPhase3Url;
+
+  const container = document.getElementById("cuadros-container");
+  container.innerHTML = "";
+  container.style.gridTemplateColumns = "repeat(3, 260px)"; // 3 cofres grandes fijos
+  container.style.justifyContent = "center"; // centrados en la pantalla
+  container.style.gap = "120px"; // más espacio entre ellos
+
+  let cantidadCofres = 3;
+  premioIndex = Math.floor(Math.random() * cantidadCofres);
+
+  for (let i = 0; i < cantidadCofres; i++) {
+    const d = document.createElement("div");
+    d.className = "cuadro final-phase";
+    d.dataset.index = i;
+    d.onclick = () => abrirCofre(d, i);
+    container.appendChild(d);
+  }
+}
+
+function colocarCofresEspeciales(tipo, cantidad) {
+  const cofres = document.querySelectorAll(".cuadro:not(.abierto)");
+  const indices = [];
+  while (indices.length < cantidad && indices.length < cofres.length) {
+    const idx = Math.floor(Math.random() * cofres.length);
+    const cofre = cofres[idx];
+    if (!indices.includes(idx) &&
+        cofre.dataset.especial === undefined &&
+        cofre.dataset.tenOpus === undefined &&
+        parseInt(cofre.dataset.index) !== premioIndex) {
+      indices.push(idx);
+    }
+  }
+  indices.forEach(idx => {
+    cofres[idx].dataset.especial = tipo;
+  });
+  if (tipo > 0) plusPlaced = true;
+}
+
+function showEffectImage(src) {
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.position = 'fixed';
+  img.style.top = '50%';
+  img.style.left = '50%';
+  img.style.transform = 'translate(-50%, -50%) scale(0)';
+  img.style.zIndex = '100';
+  img.style.maxWidth = '50vw';
+  img.style.animation = 'effectAnim 1s ease-out forwards';
+  document.body.appendChild(img);
+  setTimeout(() => img.remove(), 1000);
+}
+
+function abrirCofre(cuadro, index) {
+  if (!juego || cuadro.classList.contains("abierto")) return;
+
+  openSound.currentTime = 0;
+  openSound.play().catch(() => {});
+
+  cuadro.classList.add("abierto");
+  cuadro.style.backgroundImage = `url(${cofreAbierto})`;
+  cuadro.style.cursor = "default";
+  cofresAbiertos++;
+
+  let cambio = 0;
+
+  if (cuadro.dataset.tenOpus === "true") {
+    intentos = maxIntentos;
+    triesText.textContent = intentos;
+    termoImg.src = currentTermoImgs[maxIntentos - intentos];
+
+    const img = document.createElement('img');
+    img.src = "https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/10%20opus.png";
+    img.className = "ten-opus-effect";
+    document.body.appendChild(img);
+    setTimeout(() => img.remove(), 3200);
+
+    tenOpusSound.currentTime = 0;
+    tenOpusSound.play().catch(() => {});
+
+    const efectoText = document.createElement("div");
+    efectoText.style.position = "absolute";
+    efectoText.style.top = "50%";
+    efectoText.style.left = "50%";
+    efectoText.style.transform = "translate(-50%, -50%)";
+    efectoText.style.fontFamily = "'Creepster', cursive";
+    efectoText.style.fontSize = "28px";
+    efectoText.style.color = "#ffd700";
+    efectoText.style.textShadow = "0 0 10px black";
+    efectoText.textContent = maxIntentos + " OPUS";
+    cuadro.appendChild(efectoText);
+    setTimeout(() => efectoText.remove(), 2200);
+  }
+  else if (cuadro.dataset.especial) {
+    cambio = parseInt(cuadro.dataset.especial);
+
+    const efectoText = document.createElement("div");
+    efectoText.style.position = "absolute";
+    efectoText.style.top = "50%";
+    efectoText.style.left = "50%";
+    efectoText.style.transform = "translate(-50%, -50%)";
+    efectoText.style.fontFamily = "'Creepster', cursive";
+    efectoText.style.fontSize = "24px";
+    efectoText.style.color = cambio > 0 ? "#00ff00" : "#ff0000";
+    efectoText.style.textShadow = "0 0 5px black";
+    efectoText.textContent = cambio > 0 ? "+2" : "-2";
+    cuadro.appendChild(efectoText);
+    setTimeout(() => efectoText.remove(), 1500);
+
+    if (cambio > 0) {
+      plusSound.currentTime = 0;
+      plusSound.play().catch(() => {});
+      showEffectImage("https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/mas%20dos.png");
+    } else {
+      minusSound.currentTime = 0;
+      minusSound.play().catch(() => {});
+      showEffectImage("https://raw.githubusercontent.com/horrorparanormales/Avatar-el-Horror/main/menos%20dos.png");
+    }
+  }
+  else if (index === premioIndex) {
+    win(cuadro);
+    return;
+  }
+  else {
+    cambio = -1;
+  }
+
+  if (cambio !== 0 && cuadro.dataset.tenOpus !== "true") {
+    intentos += cambio;
+    intentos = Math.max(0, Math.min(maxIntentos, intentos));
+    triesText.textContent = intentos;
+    termoImg.src = currentTermoImgs[maxIntentos - intentos];
+  }
+
+  if (intentos <= 7 && currentPhase < 3 && !plusPlaced) {
+    colocarCofresEspeciales(2, 2);
+  }
+
+  if (intentos <= 0) {
+    juego = false;
+    endGameOverlay.style.display = "flex";
+  }
+}
+
+function win(c) {
+  juego = false;
+  avatarImg.src = ganador;
+  winSound.currentTime = 0;
+  winSound.volume = 0.85;
+  winSound.play().catch(() => {});
+  c.classList.add("premio");
+
+  llaveElement = document.createElement("div");
+  llaveElement.className = "llave-ganadora";
+  if (currentPhase === 2) llaveElement.classList.add("blue");
+  if (currentPhase === 3) llaveElement.classList.add("purple");
+  llaveElement.style.backgroundImage = `url(${currentPhase === 1 ? llavePhase1Url : currentPhase === 2 ? llavePhase2Url : llavePhase3Url})`;
+  document.body.appendChild(llaveElement);
+
+  felicidadesText.style.opacity = "1";
+
+  setTimeout(() => {
+    felicidadesText.style.opacity = "0";
+    if (llaveElement) {
+      llaveElement.remove();
+      llaveElement = null;
+    }
+    c.classList.remove("premio");
+    avatarImg.src = normal;
+
+    if (currentPhase === 1) {
+      vaultImg.src = vaultPhase2Url;
+      startPhase2();
+    } else if (currentPhase === 2) {
+      vaultImg.src = vaultPhase3Url;
+      startPhase3();
+    } else if (currentPhase === 3) {
+      finalVideoOverlay.style.display = "flex";
+      finalVideo.play();
+    }
+  }, 3500);
+}
+
+function abrirInstrucciones() {
+  const modal = document.getElementById("instruccionesModal");
+  modal.style.display = "flex";
+  modal.offsetHeight;
+  modal.classList.add("visible");
+}
+
+function cerrarInstrucciones() {
+  const modal = document.getElementById("instruccionesModal");
+  modal.classList.remove("visible");
+  setTimeout(() => modal.style.display = "none", 800);
+}
+
+document.getElementById("instruccionesModal").onclick = function(e) {
+  if (e.target === this || e.target.classList.contains("cerrar")) {
+    cerrarInstrucciones();
+  }
+};
+</script>
+</body>
+</html>
